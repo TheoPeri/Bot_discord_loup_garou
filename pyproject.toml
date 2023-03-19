@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "bot-discord-loup-garou"
+version = "0.1.0"
+description = ""
+authors = ["Theo Perinet <theo.perinet@gmail.com>"]
+readme = "README.md"
+packages = [{include = "bot_discord_loup_garou"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+discord = "^2.2.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
