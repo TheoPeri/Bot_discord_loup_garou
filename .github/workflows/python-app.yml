@@ -5,7 +5,7 @@ name: Discord Webhook
 on:
   push:
     branches:
-      - main
+      - running_bot
 
 # 'jobs' are the routines, we only have
 # one when the instance is built.
