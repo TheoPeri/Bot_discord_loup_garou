@@ -1,10 +1,11 @@
 import discord
 import game_lg
 import hellper
+import os
 
 def run_discord_bot():
-    # get token from token.txt file
-    TOKEN = open('token.txt', 'r').read()
+    # get token from env variable
+    TOKEN = os.getenv('TOKEN')
     client = discord.Client(intents = discord.Intents.all())
 
     games = {}
