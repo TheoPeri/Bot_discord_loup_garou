@@ -46,25 +46,67 @@ async def send_message(message, title, description, is_private, image=None, spec
     except Exception as e:
         print(e)
 
-async def send_roles(real_users, roles, mg):
+async def send_roles(real_users, roles, admin):
     role_url = {
-        'Salvateur': 'https://cdn.discordapp.com/attachments/1066452874055385128/1087103625274335292/salvateur.jpg',
-        'Villageois': 'https://cdn.discordapp.com/attachments/1066452874055385128/1087103625622474822/villageois.jpg',
-        'Loup-Garou': 'https://cdn.discordapp.com/attachments/1066452874055385128/1087103625920250047/loupGarou.jpg',
-        'Voyante': 'https://cdn.discordapp.com/attachments/1066452874055385128/1087103626226442250/voyante.jpg',
-        'Cupidon': 'https://cdn.discordapp.com/attachments/1066452874055385128/1087103627149189211/cupidon.jpg',
-        'Corbeau': 'https://cdn.discordapp.com/attachments/1066452874055385128/1087103700943781988/le_corbeau.jpg',
-        'Chasseur': 'https://cdn.discordapp.com/attachments/1066452874055385128/1087103701841367050/chasseur.jpg',
-        'Sorcière': 'https://cdn.discordapp.com/attachments/1066452874055385128/1087103703011578017/sorciere.jpg',
-        'Maire': 'https://cdn.discordapp.com/attachments/1066452874055385128/1087103702663430197/maire.jpg',
-        'Pirate': 'https://cdn.discordapp.com/attachments/1066452874055385128/1087106860504580187/SPOILER_pirate.jpg',
-        'Ancien': 'https://cdn.discordapp.com/attachments/1066452874055385128/1087103702311125123/ancien.jpg',
-        'BoucEmissaire': 'https://cdn.discordapp.com/attachments/1066452874055385128/1087103701275115640/boucEmissaire.jpg',
-        'Voleur': 'https://cdn.discordapp.com/attachments/1066452874055385128/1087103626830413834/voleur.jpg',
-        'PetiteFille': 'https://cdn.discordapp.com/attachments/1066452874055385128/1087103626524250262/petitefille.jpg',
+        'Ancien':           'https://cdn.discordapp.com/attachments/933309657206902866/1091704230647185428/Ancien.jpg',
+        'Ange':             'https://cdn.discordapp.com/attachments/933309657206902866/1091704231066620004/Ange.jpg',
+        'BoucEmissaire':    'https://cdn.discordapp.com/attachments/933309657206902866/1091704231360213093/BoucEmissaire.jpg',
+        'Chasseur':         'https://cdn.discordapp.com/attachments/933309657206902866/1091704231775453265/Chasseur.jpg',
+        'Corbeau':          'https://cdn.discordapp.com/attachments/933309657206902866/1091704232148750397/Corbeau.jpg',
+        'Cupidon':          'https://cdn.discordapp.com/attachments/933309657206902866/1091704232526229615/Cupidon.jpg',
+        'Idiot':            'https://cdn.discordapp.com/attachments/933309657206902866/1091704232878555136/Idiot.jpg',
+        'JoueurFlute':      'https://cdn.discordapp.com/attachments/933309657206902866/1091704299538620557/JoueurFlute.jpg',
+        'Loup-Garou':       'https://cdn.discordapp.com/attachments/933309657206902866/1091704299882545252/Loup-Garou.jpg',
+        'Maire':            'https://cdn.discordapp.com/attachments/933309657206902866/1091704300473950318/Maire.jpg',
+        'PetiteFille':      'https://cdn.discordapp.com/attachments/933309657206902866/1091704304479502407/PetiteFille.jpg',
+        'Pirate':           'https://cdn.discordapp.com/attachments/933309657206902866/1091704304919908395/Pirate.jpg',
+        'Salvateur':        'https://cdn.discordapp.com/attachments/933309657206902866/1091704305674887269/Salvateur.jpg',
+        'Sorcière':         'https://cdn.discordapp.com/attachments/933309657206902866/1091704306207555634/Sorciere.jpg',
+        'Villageois':       'https://cdn.discordapp.com/attachments/933309657206902866/1091704306647965746/Villageois.jpg',
+        'Voleur':           'https://cdn.discordapp.com/attachments/933309657206902866/1091704307209994320/Voleur.jpg',
+        'Voyante':          'https://cdn.discordapp.com/attachments/933309657206902866/1091704307780423710/Voyante.jpg',
+        'Error':            'https://cdn.discordapp.com/attachments/933309657206902866/1091726397287977030/image.png',
     }
+
+    users_sended = []
+
     for personne, role in roles.items():
         for user in real_users:
             if str(user.name).lower().replace(" ", "") == personne:
-                await send_message(user, f'Pour la partie de {mg}', f'Tu es {role}', True, role_url[role] if role in role_url else None, special=True)
+                users_sended.append(personne)
+                await send_message(user, f'Pour la partie de {admin}', f'Tu es {role}', True, role_url[role] if role in role_url else role_url["Error"], special=True)
 
+    return users_sended
+
+# help message
+def create_help():
+    txt = '''
+                Hey ! I'm the **LG bot**, here are the commands you can use:
+                
+                # First, create a game
+                > !create `- create a game`
+                
+                # Next, add the users 
+                > !add_users_in_channel       `- add all users in your voice channel`
+                > !add_user <user>            `- add user to game`
+                > !remove_user <user>         `- remove user from game`
+
+                # Add the roles
+                ## authomatically
+                > !generate_default_roles     `- generate default roles`
+                ## manually (or modify the roles generated authomatically)
+                > !add_role <role>            `- add role to game`
+                > !remove_role <role>         `- remove role from game`
+
+                # Start the game !
+                > !start                      `- start the game`
+
+                # The game is finished ? restart it !
+                > !restart                    `- restart the game (it will keep the users and roles)`
+                > !hard_restart                `- restart the game (create an empty game / no roles and users kept)`
+
+                # Other commands
+                > !status                     `- show users in game`
+                '''
+    
+    return txt
