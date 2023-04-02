@@ -20,7 +20,7 @@ async def send_message(message, title, description, is_private, image=None, spec
         print(e)
 
 # send embed message
-async def send_private_message(user, title, description, is_private, image=None):
+async def send_private_message(user, title, description, image=None):
     try:
         if type(description) is list:
             description = '\n'.join(["- " + str(i) for i in description])
@@ -68,7 +68,7 @@ async def send_roles(all_users, roles, admin):
         for user_name, user in all_users:
             if personne == user_name and user is not None:
                 users_sended.append(personne)
-                await send_private_message(user, f'Pour la partie de {admin}', f'Tu es {role}', True, role_url[role] if role in role_url else role_url["Error"])
+                await send_private_message(user, f'Pour la partie de {admin}', f'Tu es {role}', role_url[role] if role in role_url else role_url["Error"])
 
     return users_sended
 
