@@ -7,18 +7,27 @@ from discord.ui import View, Button
 
 # Role button
 class RoleButton(Button):
-    def __init__(self, game, role, to_add, parent_view):
+    def __init__(self, game, role, switch, parent_view, on = False):
         self.game = game
         self.role = role
-        self.to_add = to_add
+        self.switch = switch
+        self.on = on
         self.parent_view = parent_view
 
-        if to_add:
-            style = discord.ButtonStyle.green
+        if switch:
+            if role in game.roles and game.roles[role] > 0:
+                style = discord.ButtonStyle.green
+                self.on = True
+            else:
+                style = discord.ButtonStyle.red
+                self.on = False
+            super().__init__(label=role, style=style)
         else:
-            style = discord.ButtonStyle.red
-
-        super().__init__(label="[" + str(game.roles[role] if role in game.roles else 0) + "] " + role, style=style)
+            if on:
+                style = discord.ButtonStyle.green
+            else:
+                style = discord.ButtonStyle.red
+            super().__init__(label="[" + str(game.roles[role] if role in game.roles else 0) + "] " + role, style=style)
 
     async def callback(self, interaction: discord.Interaction):
         # check if user is the game creator
@@ -26,14 +35,27 @@ class RoleButton(Button):
             await interaction.response.send_message("Tu fait quoi frero ? Touche pas a ça è_é", ephemeral=True)
             return
 
-        if self.to_add:
-            self.game.add_role(self.role)
+        if self.switch:
+            if self.on:
+                self.style = discord.ButtonStyle.red
+                self.on = False
+                self.game.remove_role(self.role)
+            else:
+                self.style = discord.ButtonStyle.green
+                self.on = True
+                self.game.add_role(self.role)
+            # change style of the button
+            await interaction.response.edit_message(view=self.view)
         else:
-            self.game.remove_role(self.role)
-        role_buttons = [item for item in self.parent_view.children if item.label not in ["Menu", "Recommencer", "Génération auto"] and item.role == self.role]
-        for button in role_buttons:
-            button.label = "[" + str(self.game.roles[self.role] if self.role in self.game.roles else 0) + "] " + self.role
-        await interaction.response.edit_message(view=self.view)
+            if self.on:
+                self.game.add_role(self.role)
+            else:
+                self.game.remove_role(self.role)
+            
+            role_buttons = [item for item in self.parent_view.children if item.label not in ["Menu", "Recommencer", "Génération auto", "-"] and item.role == self.role]
+            for button in role_buttons:
+                button.label = "[" + str(self.game.roles[self.role] if self.role in self.game.roles else 0) + "] " + self.role
+            await interaction.response.edit_message(view=self.view)
 
 class RecommencerButton(Button):
     def __init__(self, game, parent_view):
@@ -50,10 +72,12 @@ class RecommencerButton(Button):
 
         self.game.roles = {}
 
-        role_buttons = [item for item in self.parent_view.children if item.label not in ["Menu", "Recommencer", "Génération auto"]]
-        for button in role_buttons:
-            button.label = "[0] " + button.role
-        await interaction.response.edit_message(view=self.view)
+        # call role
+        await self.parent_view.msg.delete()
+        await self.parent_view.context.invoke(self.parent_view.mybot.get_command("role"))
+        await interaction.response.defer()
+
+        
 
 class GenerateButton(Button):
     def __init__(self, game, parent_view):
@@ -71,10 +95,10 @@ class GenerateButton(Button):
         self.game.roles = {}
         self.game.generate_default_roles()
 
-        role_buttons = [item for item in self.parent_view.children if item.label not in ["Menu", "Recommencer", "Génération auto"]]
-        for button in role_buttons:
-            button.label = "[" + str(self.game.roles[button.role] if button.role in self.game.roles else 0) + "] " + button.role
-        await interaction.response.edit_message(view=self.view)
+        # generate roles
+        await self.parent_view.msg.delete()
+        await self.parent_view.context.invoke(self.parent_view.mybot.get_command("role"))
+        await interaction.response.defer()
 
 class RoleView(View):
     def __init__(self, game, context, mybot):
@@ -84,8 +108,14 @@ class RoleView(View):
         self.mybot = mybot
 
         for role in game.all_roles:
-            button_role = RoleButton(game, role, True, self)
-            self.add_item(button_role)
+            if role not in ["Loup-Garou", "Villageois"]:
+                button_role = RoleButton(game, role, True, self)
+                self.add_item(button_role)
+
+        # add empty button
+        button_empty = Button(label="-", style=discord.ButtonStyle.grey)
+        button_empty.disabled = True
+        self.add_item(button_empty)
 
         # add Menu button
         button_menu = CallerButton(game, self, "Menu", "🏠", "home")
@@ -98,10 +128,23 @@ class RoleView(View):
         # add generate button
         button_generate = GenerateButton(game, self)
         self.add_item(button_generate)
+        
+        # add empty button
+        button_empty = Button(label="-", style=discord.ButtonStyle.grey)
+        button_empty.disabled = True
+        self.add_item(button_empty)
+        
+        # add empty button
+        button_empty = Button(label="-", style=discord.ButtonStyle.grey)
+        button_empty.disabled = True
+        self.add_item(button_empty)
 
-        for role in game.all_roles[-1:] + game.all_roles[:-1]:
-            button_role = RoleButton(game, role, False, self)
-            self.add_item(button_role)
+        for role in game.all_roles:
+            if role in ["Loup-Garou", "Villageois"]:
+                button_role = RoleButton(game, role, False, self, True)
+                self.add_item(button_role)
+                button_role = RoleButton(game, role, False, self, False)
+                self.add_item(button_role)
 
 class PlayerButton(Button):
     def __init__(self, game, user_name):
@@ -314,7 +357,9 @@ def run_discord_bot():
                 > Ajouter un joueur en cliquant sur un joueur rouge
                 > Retirer un joueur en cliquant sur un joueur vert
                 > Revenir au menu en cliquant sur le bouton Menu 🏠
-                '''                
+                > Recharger la page en cliquant sur le bouton Recharger 🔄
+                > Créer un invitation en cliquant sur le bouton Inviter 👥 (ou la commande !invite) 
+                '''
 
                 embed = discord.Embed(title=f"Gestion des joueurs", description=txt, color=0xe69038)
                 embed.set_image(url="https://cdn.discordapp.com/attachments/933309657206902866/1092062047048572958/joueurs.jpg")
@@ -339,9 +384,10 @@ def run_discord_bot():
 
                 txt = '''
                 Tu peux:
-                > Ajouter un role en cliquant sur un bouton vert
-                > Retirer un role en cliquant sur un bouton rouge
+                > Ajouter / retirer des roles
                 > Revenir au menu en cliquant sur le bouton Menu 🏠
+                > Recommencer avec le bouton Recommencer 🗑️
+                > Générer des roles avec le bouton Génération auto 🎲
                 '''                
 
                 embed = discord.Embed(title=f"Gestion des roles", description=txt, color=0xe69038)

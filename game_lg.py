@@ -9,13 +9,10 @@ class LGgame:
         # waiting users
         self.all_users = []
 
-        for i in range(0, 3):
-            self.all_users.append(("test" + str(i), None))
-
         # users in game
         self.users = []
         # roles possible
-        self.all_roles = ['Ange', 'Chasseur', 'Corbeau', 'Cupidon', 'JoueurFlute', 'Loup-Garou', 'Pirate', 'Salvateur', 'Sorcière', 'Villageois', 'Voyante'] # Pas assez de place :/ Idiot / PetiteFille / Ancien / BoucEmissaire / Voleur
+        self.all_roles = ['Ange', 'Chasseur', 'Corbeau', 'Cupidon', 'JoueurFlute', 'Loup-Garou', 'Pirate', 'Salvateur', 'Sorcière', 'Villageois', 'Voyante', 'Idiot', 'PetiteFille', 'Ancien', 'BoucEmissaire', 'Voleur']
         # roles in game
         self.roles = {}
         
