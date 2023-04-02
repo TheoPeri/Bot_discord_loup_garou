@@ -25,7 +25,7 @@ class LGgame:
     ### user manager
 
     def add_user_all(self, full_user):
-        user = (full_user.name, full_user)
+        user = (full_user.nick, full_user)
         if user not in self.all_users:
             self.all_users.append(user)
 

@@ -419,6 +419,11 @@ def run_discord_bot():
         else:
             await hellper.send_message(ctx, 'Erreur' , 'Aucune partie en cours !', False)
 
+    @bot.command()
+    async def end(ctx):
+        # stop the bot
+        await bot.close()
+
 
 
     bot.run(TOKEN)
