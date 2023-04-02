@@ -1,32 +1,5 @@
 import discord
 
-# get user in discord channel
-async def get_user_voice_channel(message):
-    try:
-        # get user voice channel
-        user = message.author
-        channel = user.voice.channel
-        # get all users in channel
-        real_users = channel.members
-        # get only member name
-        users = [str(user.name).lower().replace(" ", "") for user in real_users]
-        # remove bot and user
-        users.remove(str(user.name).lower().replace(" ", ""))
-        return users, real_users
-    
-    except Exception as e:
-        print(e)
-        return None
-
-# send role to user
-
-async def send_simple_message(message, to_send, is_private):
-    try:
-        await message.author.send(to_send) if is_private else await message.channel.send(to_send)
-
-    except Exception as e:
-        print(e)
-
 # send embed message
 async def send_message(message, title, description, is_private, image=None, special=False):
     try:
@@ -46,7 +19,23 @@ async def send_message(message, title, description, is_private, image=None, spec
     except Exception as e:
         print(e)
 
-async def send_roles(real_users, roles, admin):
+# send embed message
+async def send_private_message(user, title, description, is_private, image=None):
+    try:
+        if type(description) is list:
+            description = '\n'.join(["- " + str(i) for i in description])
+        elif type(description) is dict:
+            description = '\n'.join(["- " + str(key) + " : " + str(value) for key, value in description.items()])
+
+        embed = discord.Embed(title=title, description=description, color=0xe69038)
+        if image is not None:
+            embed.set_image(url=image)
+        await user.send(embed=embed)
+
+    except Exception as e:
+        print(e)
+
+async def send_roles(all_users, roles, admin):
     role_url = {
         'Ancien':           'https://cdn.discordapp.com/attachments/933309657206902866/1091704230647185428/Ancien.jpg',
         'Ange':             'https://cdn.discordapp.com/attachments/933309657206902866/1091704231066620004/Ange.jpg',
@@ -57,24 +46,29 @@ async def send_roles(real_users, roles, admin):
         'Idiot':            'https://cdn.discordapp.com/attachments/933309657206902866/1091704232878555136/Idiot.jpg',
         'JoueurFlute':      'https://cdn.discordapp.com/attachments/933309657206902866/1091704299538620557/JoueurFlute.jpg',
         'Loup-Garou':       'https://cdn.discordapp.com/attachments/933309657206902866/1091704299882545252/Loup-Garou.jpg',
-        'Maire':            'https://cdn.discordapp.com/attachments/933309657206902866/1091704300473950318/Maire.jpg',
-        'PetiteFille':      'https://cdn.discordapp.com/attachments/933309657206902866/1091704304479502407/PetiteFille.jpg',
         'Pirate':           'https://cdn.discordapp.com/attachments/933309657206902866/1091704304919908395/Pirate.jpg',
         'Salvateur':        'https://cdn.discordapp.com/attachments/933309657206902866/1091704305674887269/Salvateur.jpg',
         'Sorcière':         'https://cdn.discordapp.com/attachments/933309657206902866/1091704306207555634/Sorciere.jpg',
         'Villageois':       'https://cdn.discordapp.com/attachments/933309657206902866/1091704306647965746/Villageois.jpg',
         'Voleur':           'https://cdn.discordapp.com/attachments/933309657206902866/1091704307209994320/Voleur.jpg',
         'Voyante':          'https://cdn.discordapp.com/attachments/933309657206902866/1091704307780423710/Voyante.jpg',
+        'PetiteFille':      'https://cdn.discordapp.com/attachments/933309657206902866/1091704304479502407/PetiteFille.jpg',
+        'Maire':            'https://cdn.discordapp.com/attachments/933309657206902866/1091704300473950318/Maire.jpg',
         'Error':            'https://cdn.discordapp.com/attachments/933309657206902866/1091726397287977030/image.png',
+        'Lobby':            'https://cdn.discordapp.com/attachments/933309657206902866/1092036913935941662/lobby.jpg',
+        'roles':            'https://cdn.discordapp.com/attachments/933309657206902866/1092062047451222026/roles.jpg',
+        'joueurs':          'https://cdn.discordapp.com/attachments/933309657206902866/1092062047048572958/joueurs.jpg',
+        'invite':           'https://cdn.discordapp.com/attachments/933309657206902866/1092092306984800276/invite.jpg',
+        'game':         	'https://cdn.discordapp.com/attachments/933309657206902866/1092089624530268231/game.jpg',
     }
 
     users_sended = []
 
     for personne, role in roles.items():
-        for user in real_users:
-            if str(user.name).lower().replace(" ", "") == personne:
+        for user_name, user in all_users:
+            if personne == user_name and user is not None:
                 users_sended.append(personne)
-                await send_message(user, f'Pour la partie de {admin}', f'Tu es {role}', True, role_url[role] if role in role_url else role_url["Error"], special=True)
+                await send_private_message(user, f'Pour la partie de {admin}', f'Tu es {role}', True, role_url[role] if role in role_url else role_url["Error"])
 
     return users_sended
 
@@ -107,6 +101,18 @@ def create_help():
 
                 # Other commands
                 > !status                     `- show users in game`
+                '''
+    
+    return txt
+
+
+# help message
+def create_help_v2():
+    txt = '''
+                Hey ! I'm the **LG bot**, here are the commands you can use:
+                
+                > !create `- create a game`
+                > !home `- show the home page`
                 '''
     
     return txt

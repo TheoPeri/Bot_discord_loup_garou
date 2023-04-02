@@ -2,23 +2,32 @@
 import random
 
 class LGgame:
-    def __init__(self):
+    def __init__(self, creator):
         print("Game created")
+        self.creator = creator
         self.started = False
+        # waiting users
+        self.all_users = []
+
+        for i in range(0, 3):
+            self.all_users.append(("test" + str(i), None))
+
         # users in game
         self.users = []
         # roles possible
-        self.all_roles = ['Loup-Garou', 'Voyante', 'Sorcière', 'Salvateur', 'Chasseur', 'Corbeau', 'Cupidon', 'Pirate', 'Villageois', 'Ancien', 'Ange', 'BoucEmissaire', 'Idiot', 'JoueurFlute', 'PetiteFille', 'Voleur']
+        self.all_roles = ['Ange', 'Chasseur', 'Corbeau', 'Cupidon', 'JoueurFlute', 'Loup-Garou', 'Pirate', 'Salvateur', 'Sorcière', 'Villageois', 'Voyante'] # Pas assez de place :/ Idiot / PetiteFille / Ancien / BoucEmissaire / Voleur
         # roles in game
         self.roles = {}
         
         # assigned roles
         self.game = {}
 
-        # discord users
-        self.real_users = None
-
     ### user manager
+
+    def add_user_all(self, full_user):
+        user = (full_user.name, full_user)
+        if user not in self.all_users:
+            self.all_users.append(user)
 
     def add_user(self, user):
         if user not in self.users:
@@ -34,7 +43,10 @@ class LGgame:
     ### roles manager
 
     def add_role(self, role):
-        self.roles[role] += 1
+        if role in self.roles:
+            self.roles[role] += 1
+        else:
+            self.roles[role] = 1
 
     def remove_role(self, role):
         if role in self.roles:
@@ -65,9 +77,10 @@ class LGgame:
             self.roles['Loup-Garou'] = 4
 
         nb_roles_to_assign = nb_players - self.get_nb_roles()
-        
-        for i in range(nb_roles_to_assign if nb_roles_to_assign < (len(self.all_roles) - 1) else (len(self.all_roles) - 1)):
-            self.roles[self.all_roles[1 + i]] += 1
+
+        tmp_roles = ['Voyante', 'Sorcière'] + [role for role in self.all_roles if role not in ['Loup-Garou', 'Voyante', 'Sorcière', 'Villageois']]
+        for i in range(nb_roles_to_assign if nb_roles_to_assign < len(tmp_roles) else len(tmp_roles)):
+            self.roles[tmp_roles[i]] += 1
 
         nb_roles_to_assign = nb_players - self.get_nb_roles()
         # complete with villageois

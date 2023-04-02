@@ -1,4 +1,4 @@
-import bot
+import botv2
 
 if __name__ == '__main__':
-    bot.run_discord_bot()
+    botv2.run_discord_bot()
