@@ -58,3 +58,5 @@ main.py => appel botv2.py
 botv2.py => gere les interaction discord pour les communiquer au game\_lg
 game\_lg.py => gere la game en tant que tel
 hellper.py => petites fonction utiles
+
+
